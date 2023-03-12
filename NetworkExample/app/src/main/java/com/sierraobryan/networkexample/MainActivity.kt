@@ -10,7 +10,15 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.sierraobryan.networkexample.ui.details.DetailsContent
+import com.sierraobryan.networkexample.ui.details.DetailsViewModel
 import com.sierraobryan.networkexample.ui.feature.FeatureContent
+import com.sierraobryan.networkexample.ui.feature.FeatureViewModel
 import com.sierraobryan.networkexample.ui.theme.NetworkExampleTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,9 +33,37 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    FeatureContent()
+                    HostNavApp()
                 }
             }
         }
+    }
+}
+
+@Composable
+fun HostNavApp(
+   modifier: Modifier = Modifier,
+   navHostController: NavHostController = rememberNavController(),
+   startDestination: String = "list"
+) {
+    NavHost(
+        modifier = modifier,
+        navController = navHostController,
+        startDestination = startDestination
+    ) {
+        composable("list") {
+            val viewModel = hiltViewModel<FeatureViewModel>()
+            FeatureContent(
+                viewModel = viewModel,
+                onClick = { name ->
+                    navHostController.navigate("details/$name")
+                }
+            )
+        }
+        composable("details/{name}") {
+            val viewModel = hiltViewModel<DetailsViewModel>()
+            DetailsContent(viewModel)
+        }
+
     }
 }
